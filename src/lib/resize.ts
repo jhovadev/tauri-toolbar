@@ -17,7 +17,8 @@ export async function resizeToContent() {
     const sectionScrollHeight = section.scrollHeight
 
     // Calcular nueva altura total
-    const newTotalHeight = sectionScrollHeight + headerHeight + dragAreaHeight
+    // const newTotalHeight = sectionScrollHeight + headerHeight + dragAreaHeight
+    const newTotalHeight = 360
 
     // Aplicar límite máximo de 760px
     await invoke("resize_window", {

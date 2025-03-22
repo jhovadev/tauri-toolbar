@@ -1,15 +1,25 @@
 {
-    "$schema": "../gen/schemas/desktop-schema.json",
-    "identifier": "default",
-    "description": "Capability for the main window",
-    "windows": ["main"],
-    "permissions": [
-        "core:default",
-        "shell:allow-open",
-        "core:window:default",
-        "core:window:allow-start-dragging",
-        "core:window:deny-start-resize-dragging",
-        "core:window:allow-minimize",
-        "core:window:allow-close"
-    ]
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main",
+    "popupWindow"
+  ],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    "core:window:default",
+    "core:window:allow-start-dragging",
+    "core:window:deny-start-resize-dragging",
+    "core:window:allow-minimize",
+    "core:window:allow-close",
+    "core:webview:allow-create-webview",
+    "core:webview:allow-create-webview-window",
+    "core:webview:allow-webview-close",
+    "core:window:allow-create",
+    "core:window:allow-destroy",
+    "core:window:allow-start-resize-dragging",
+    "dialog:default"
+  ]
 }
