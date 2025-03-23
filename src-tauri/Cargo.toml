@@ -32,3 +32,4 @@ winapi = { version = "0.3", features = [
     "winuser",
     "wingdi",
 ] }
+tauri-plugin-opener = "2"

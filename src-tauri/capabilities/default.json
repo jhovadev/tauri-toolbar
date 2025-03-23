@@ -20,6 +20,15 @@
     "core:window:allow-create",
     "core:window:allow-destroy",
     "core:window:allow-start-resize-dragging",
-    "dialog:default"
+    "dialog:default",
+    "opener:default",
+    "opener:allow-open-path",
+    "opener:allow-open-url",
+    "opener:allow-default-urls",
+    "dialog:allow-open",
+    "shell:default",
+    "shell:allow-execute",
+    "shell:allow-spawn",
+    "core:window:allow-set-always-on-top"
   ]
 }

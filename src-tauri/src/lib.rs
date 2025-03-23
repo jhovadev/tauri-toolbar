@@ -1,12 +1,12 @@
 use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 // use image::codecs::png::PngEncoder; // O si se usa otra codificación
-use image::{ImageBuffer, ImageFormat, RgbaImage};
+use image::{ImageBuffer, ImageEncoder};
 
 use mime_guess::MimeGuess;
 use std::io::Cursor;
 use std::path::Path;
-use winapi::um::shellapi::{SHGetFileInfoW, SHFILEINFOW, SHGFI_ICON, SHGFI_SMALLICON};
+use winapi::um::shellapi::{SHGetFileInfoW, SHFILEINFOW, SHGFI_ICON, SHGFI_LARGEICON};
 use winapi::um::wingdi::{
     DeleteObject, GetDIBits, GetObjectW, BITMAP, BITMAPINFO, BITMAPINFOHEADER, BI_RGB,
     DIB_RGB_COLORS,
@@ -18,12 +18,13 @@ fn get_windows_icon(file_path: &str) -> Option<String> {
         let mut file_info: SHFILEINFOW = std::mem::zeroed();
         let wide_path: Vec<u16> = file_path.encode_utf16().chain(std::iter::once(0)).collect();
 
+        // Usar ícono grande para mejor calidad
         let result = SHGetFileInfoW(
             wide_path.as_ptr(),
             0,
             &mut file_info,
             std::mem::size_of::<SHFILEINFOW>() as u32,
-            SHGFI_ICON | SHGFI_SMALLICON,
+            SHGFI_ICON | SHGFI_LARGEICON, // Cambiado a LARGEICON
         );
 
         if result == 0 {
@@ -85,19 +86,58 @@ fn get_windows_icon(file_path: &str) -> Option<String> {
             return None;
         }
 
-        let img: Option<RgbaImage> =
-            ImageBuffer::from_raw(bmp.bmWidth as u32, bmp.bmHeight as u32, buffer);
+        // Convertir BGRA a RGBA
+        for chunk in buffer.chunks_exact_mut(4) {
+            let b = chunk[0];
+            let g = chunk[1];
+            let r = chunk[2];
+            let a = chunk[3];
 
-        match img {
-            Some(image) => {
-                let mut cursor = Cursor::new(Vec::new());
-                if image.write_to(&mut cursor, ImageFormat::Png).is_err() {
-                    return None;
-                }
-                Some(STANDARD.encode(cursor.into_inner()))
-            }
-            None => None,
+            chunk[0] = r;
+            chunk[1] = g;
+            chunk[2] = b;
+            chunk[3] = a;
         }
+
+        // Crear imagen y escalar
+        let img: ImageBuffer<image::Rgba<u8>, Vec<u8>> =
+            match ImageBuffer::from_raw(bmp.bmWidth as u32, bmp.bmHeight as u32, buffer) {
+                Some(img) => img,
+                None => return None,
+            };
+        // Escalar a 128px manteniendo relación de aspecto
+        let scale_factor = 128.0 / img.width().max(img.height()) as f32;
+        let new_width = (img.width() as f32 * scale_factor) as u32;
+        let new_height = (img.height() as f32 * scale_factor) as u32;
+
+        let scaled_img: ImageBuffer<image::Rgba<u8>, Vec<u8>> = image::imageops::resize(
+            &img,
+            new_width,
+            new_height,
+            image::imageops::FilterType::Lanczos3,
+        );
+
+        // Codificar con mejor compresión PNG
+        let mut cursor = Cursor::new(Vec::new());
+        let encoder = image::codecs::png::PngEncoder::new_with_quality(
+            &mut cursor,
+            image::codecs::png::CompressionType::Best,
+            image::codecs::png::FilterType::Adaptive,
+        );
+
+        if let Err(_) = encoder.write_image(
+            &scaled_img,
+            scaled_img.width(),
+            scaled_img.height(),
+            image::ColorType::Rgba8.into(),
+        ) {
+            return None;
+        }
+
+        Some(format!(
+            "data:image/png;base64,{}",
+            STANDARD.encode(cursor.into_inner())
+        ))
     }
 }
 
@@ -161,6 +201,7 @@ fn resize_window(window: tauri::Window, height: f64) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
