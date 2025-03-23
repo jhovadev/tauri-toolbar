@@ -62,7 +62,7 @@ export default function Popup() {
                             <FormItem>
                                 <div className="mb-4">
                                     <FormLabel className="text-base text-alpha">
-                                        Sidebar
+                                        Settings
                                     </FormLabel>
                                     <FormDescription>
                                         Selecciona tú configuración

@@ -1,9 +1,14 @@
-import { forwardRef } from "react"
+import { forwardRef, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Settings2, Minus, X } from "lucide-react"
+import { Lock, LockOpen, Settings2, Minus, X } from "lucide-react"
+
+// Tauri
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow"
+
+// Utils
 import { useLocation } from "react-router"
+import useWindowStore from "@/stores/windowState"
 
 interface HeaderProps extends React.ComponentPropsWithoutRef<"header"> {
     children?: React.ReactNode
@@ -14,6 +19,7 @@ const appWindow = getCurrentWindow()
 
 const Header = forwardRef<HTMLHeadingElement, HeaderProps>(
     (className, ref, ...props) => {
+        const { isDraggable, setIsDraggable } = useWindowStore()
         const location = useLocation()
 
         const openPopup = async () => {
@@ -44,6 +50,12 @@ const Header = forwardRef<HTMLHeadingElement, HeaderProps>(
             })
         }
 
+        const lockPosition = () => {
+            setIsDraggable(!isDraggable)
+        }
+
+        // Limpiar intervalo al desmontar
+
         return (
             <header
                 ref={ref}
@@ -53,7 +65,9 @@ const Header = forwardRef<HTMLHeadingElement, HeaderProps>(
                         // Primary (left) button
                         e.detail === 2
                             ? appWindow.toggleMaximize() // Maximize on double click
-                            : appWindow.startDragging() // Else start dragging
+                            : isDraggable
+                              ? appWindow.startDragging()
+                              : "" // Else start dragging
                     }
                 }}
                 className={cn(
@@ -63,26 +77,50 @@ const Header = forwardRef<HTMLHeadingElement, HeaderProps>(
                 )}>
                 <nav className="p-2 w-full">
                     <ul className=" w-full flex gap-4 justify-between items-center">
-                        <button
-                            type="button"
-                            onClick={() => openPopup()}
-                            onMouseDown={(e) => e.stopPropagation()} // Detener la propagación aquí
-                            aria-label="Minimizar ventana"
-                            className={cn(
-                                "flex items-center gap-2 cursor-pointer rounded",
-                                location.pathname === "/popup" &&
-                                    "cursor-not-allowed",
-                            )}
-                            disabled={location.pathname === "/popup"}>
-                            <Settings2
+                        <div className="flex items-center justify-around gap-2">
+                            <button
+                                type="button"
+                                onClick={() => openPopup()}
+                                onMouseDown={(e) => e.stopPropagation()} // Detener la propagación aquí
+                                aria-label="Minimizar ventana"
                                 className={cn(
-                                    "size-6   text-shadow-light hover:text-accent cursor-pointer transition-colors duration-200 ease-in-out",
+                                    "flex items-center gap-2 cursor-pointer rounded",
                                     location.pathname === "/popup" &&
-                                        "text-accent",
+                                        "cursor-not-allowed",
                                 )}
-                            />
-                        </button>
-
+                                disabled={location.pathname === "/popup"}>
+                                <Settings2
+                                    className={cn(
+                                        "size-6   text-shadow-light hover:text-accent cursor-pointer transition-colors duration-200 ease-in-out",
+                                        location.pathname === "/popup" &&
+                                            "text-accent",
+                                    )}
+                                />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => lockPosition()}
+                                onMouseDown={(e) => e.stopPropagation()} // Detener la propagación aquí
+                                aria-label="Lock in position"
+                                className={cn(
+                                    "flex items-center gap-2 cursor-pointer rounded",
+                                )}>
+                                {isDraggable ? (
+                                    <Lock
+                                        className={cn(
+                                            "size-6   text-shadow-light hover:text-accent cursor-pointer transition-colors duration-200 ease-in-out",
+                                        )}
+                                    />
+                                ) : (
+                                    <LockOpen
+                                        className={cn(
+                                            "size-6   text-shadow-light hover:text-accent cursor-pointer transition-colors duration-200 ease-in-out",
+                                            isDraggable && "text-accent",
+                                        )}
+                                    />
+                                )}
+                            </button>
+                        </div>
                         <div className="flex items-center justify-around gap-2">
                             <button
                                 type="button"

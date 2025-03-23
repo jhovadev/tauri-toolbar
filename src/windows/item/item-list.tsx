@@ -72,7 +72,7 @@ export default function ItemList() {
                         // src={`data:image/png;base64,${item.icon}`}
                         src={item.icon}
                         alt={item.name}
-                        className="size-8 text-shadow-light hover:text-accent cursor-pointer transition-all duration-300 ease-out focus:animate-spin hover:animate-pulse"
+                        className="size-8 text-shadow-light hover:text-accent cursor-pointer transition-all duration-300 ease-out focus:animate-spin hover:animate-pulse select-none "
                     />
                 </button>
                 // <SquareDashed

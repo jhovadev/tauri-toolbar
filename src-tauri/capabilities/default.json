@@ -29,6 +29,8 @@
     "shell:default",
     "shell:allow-execute",
     "shell:allow-spawn",
-    "core:window:allow-set-always-on-top"
+    "core:window:allow-set-always-on-top",
+    "core:window:allow-set-position",
+    "core:webview:allow-set-webview-position"
   ]
 }

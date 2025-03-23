@@ -17,7 +17,7 @@ function App() {
             <section className="scroll-smooth scrollbar-hide overflow-y-scroll rounded-sm bg-shadow h-full flex flex-col justify-between items-center border border-shadow-light/25 ">
                 <Outlet />
             </section>
-            <Footer />
+            <Footer variant={"default"} />
         </main>
     )
 }
