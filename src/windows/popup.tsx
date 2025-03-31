@@ -72,7 +72,7 @@ export default function Popup() {
     }
 
     return (
-        <div className="flex flex-col gap-1 items-center justify-center  rounded-sm h-screen p-2">
+        <div className="flex flex-col gap-1 items-center justify-center rounded-sm p-2">
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}

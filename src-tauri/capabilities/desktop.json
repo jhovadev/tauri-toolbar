@@ -10,6 +10,7 @@
   ],
   "permissions": [
     "positioner:default",
-    "autostart:default"
+    "autostart:default",
+    "sql:default"
   ]
 }

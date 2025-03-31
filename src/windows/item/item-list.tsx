@@ -1,9 +1,8 @@
 // React
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 // Utils
 import { nanoid } from "nanoid"
-import { resizeToContent } from "@/lib/resize"
 import { open } from "@tauri-apps/plugin-dialog"
 import { invoke } from "@tauri-apps/api/core"
 // import { openPath } from "@tauri-apps/plugin-opener"
@@ -22,29 +21,6 @@ interface Item {
 }
 
 export default function ItemList() {
-    useEffect(() => {
-        const observer = new MutationObserver(() => resizeToContent())
-        const section = document.querySelector("section")
-
-        if (section) {
-            observer.observe(section, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-            })
-        }
-
-        // Ejecutar inicialmente
-        resizeToContent()
-
-        return () => observer.disconnect()
-    }, [])
-
-    // async function greet() {
-    //     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    //     setGreetMsg(await invoke("greet", { name }))
-    // }
-
     async function addItem() {
         const filePath = await open({
             multiple: false,
@@ -61,7 +37,15 @@ export default function ItemList() {
         setItems([...items, { ...metadata, id: nanoid() }])
     }
 
-    const [items, setItems] = useState<Item[]>([])
+    const [items, setItems] = useState<Item[]>([
+        // {
+        //     id: nanoid(),
+        //     name: "Tauri",
+        //     description:
+        //         "A framework for building tiny, blazing fast, and secure desktop apps with Rust.",
+        //     path: "C:\\Users\\JHOAN\\Documents\\Proyectos\\Desktop\\Tauri",
+        // },
+    ])
 
     const controls = useAnimation()
 

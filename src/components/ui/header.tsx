@@ -30,6 +30,7 @@ const Header = forwardRef<HTMLHeadingElement, HeaderProps>(
                 title: "Popup Modal",
                 decorations: false,
                 alwaysOnTop: true,
+                center: true,
                 transparent: true,
                 closable: true,
                 width: 220,
@@ -73,8 +74,9 @@ const Header = forwardRef<HTMLHeadingElement, HeaderProps>(
                     }
                 }}
                 className={cn(
+                    "max-h-10 z-10",
                     "border border-shadow-light/25",
-                    "flex rounded-sm cursor-grab  items-center  bg-shadow",
+                    "flex rounded-tl-sm rounded-tr-sm cursor-grab  items-center  bg-shadow",
                     className,
                 )}>
                 <nav className="p-2 w-full">

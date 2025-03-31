@@ -2,10 +2,10 @@ use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
 // use image::codecs::png::PngEncoder; // O si se usa otra codificación
 use image::{ImageBuffer, ImageEncoder};
-use tauri_plugin_autostart::MacosLauncher;
 use mime_guess::MimeGuess;
 use std::io::Cursor;
 use std::path::Path;
+use tauri_plugin_autostart::MacosLauncher;
 use winapi::um::shellapi::{SHGetFileInfoW, SHFILEINFOW, SHGFI_ICON, SHGFI_LARGEICON};
 use winapi::um::wingdi::{
     DeleteObject, GetDIBits, GetObjectW, BITMAP, BITMAPINFO, BITMAPINFOHEADER, BI_RGB,
@@ -186,21 +186,38 @@ fn greet(name: &str) -> String {
 //     }
 // }
 
-#[tauri::command]
-fn resize_window(window: tauri::Window, height: f64) {
-    let min_height = 320.0;
-    let max_height = 760.0;
-    let clamped_height = height.clamp(min_height, max_height);
+// #[tauri::command]
+// fn resize_window(window: tauri::Window, height: f64) -> Result<(), String> {
+//     // Definir límites de altura
+//     let min_height = 320.0;
+//     let max_height = 760.0;
+//     let clamped_height = height.clamp(min_height, max_height);
 
-    if let Ok(current_size) = window.outer_size() {
-        let width = current_size.width;
-        let _ = window.set_size(tauri::PhysicalSize::new(width, clamped_height as u32));
-    }
-}
+//     // Obtener tamaño actual
+//     let current_size = window.outer_size().map_err(|e| e.to_string())?;
+//     let current_height = current_size.height as f64;
+
+//     // Usar ancho fijo de la configuración en lugar del ancho actual
+//     // Esto evita que el ancho se incremente con cada llamada
+//     let fixed_width = 220; // Ancho definido en tauri.conf.json
+
+//     // Evitar redimensionar si el cambio es muy pequeño
+//     if (current_height - clamped_height).abs() < 2.0 {
+//         return Ok(());
+//     }
+
+//     // Aplicar el nuevo tamaño manteniendo el ancho fijo
+//     window
+//         .set_size(tauri::PhysicalSize::new(fixed_width, clamped_height as u32))
+//         .map_err(|e| format!("Error al redimensionar ventana: {}", e))?;
+
+//     Ok(())
+// }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_sql::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec!["--flag1", "--flag2"]),
@@ -211,7 +228,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             greet,
-            resize_window,
+            // resize_window,
             get_file_metadata
         ])
         .run(tauri::generate_context!())

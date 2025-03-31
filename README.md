@@ -43,6 +43,8 @@ get programs installed path
 - Items
   - Tags
     - Favorites
+	- Open Applications
+	- History 
     - x
   - Sort
   - Search

@@ -4,6 +4,9 @@ import Footer from "./components/ui/footer"
 import { motion, AnimatePresence } from "motion/react"
 import { Outlet } from "react-router"
 import useWindowStore from "./stores/window-store"
+import { useEffect } from "react"
+import { resizeToContent } from "./lib/resize"
+import { cn } from "./lib/utils"
 
 // Tauri API
 // import { invoke } from "@tauri-apps/api/core"
@@ -11,47 +14,61 @@ import useWindowStore from "./stores/window-store"
 function App() {
     // const [greetMsg, setGreetMsg] = useState("")
     // const [name, setName] = useState("")
+
     const { isExpanded } = useWindowStore()
 
+    // concept
+
+    useEffect(() => {
+        const observer = new MutationObserver(() => resizeToContent())
+        const main = document.querySelector("main")
+
+        if (main) {
+            observer.observe(main, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+            })
+        }
+
+        // Ejecutar inicialmente
+        resizeToContent()
+        console.log("Resized")
+        return () => observer.disconnect()
+    }, [])
+
     return (
-        <main className="flex flex-col gap-1 rounded-sm h-screen">
+        <main className="flex flex-col rounded-sm  max-h-[760px]">
             <Header />
             <AnimatePresence>
                 {isExpanded && (
                     <motion.section
-                        initial={{ height: 0 }} // Comienza arriba y colapsado
-                        animate={{ height: "100%", opacity: 1, y: 0 }} // Se expande como un cajón
-                        exit={{ height: 0 }} // Se cierra deslizándose hacia abajo
-                        transition={{ duration: 0.4, ease: "easeInOut" }}
-                        className="scroll-smooth scrollbar-hide overflow-y-scroll rounded-sm bg-shadow h-full flex flex-col justify-between items-center border border-shadow-light/25 ">
+                        key="expanded-section"
+                        initial={{ height: 1, y: 20 }}
+                        animate={{
+                            height: "100%",
+                            opacity: 1,
+                            y: 0,
+                        }}
+                        exit={{
+                            height: 1,
+                            y: -100,
+                        }}
+                        transition={{
+                            ease: "anticipate",
+                            duration: 0.6,
+                        }}
+                        className={cn(
+                            "z-0 scroll-smooth scrollbar-hide overflow-y-scroll  bg-shadow  flex flex-col justify-between items-center",
+                            "max-h-[516px] ",
+                        )}>
                         <Outlet />
                     </motion.section>
                 )}
             </AnimatePresence>
-
             <Footer variant={"default"} size={"md"} />
         </main>
     )
 }
 
 export default App
-
-//  <div>
-//                     <h1 className="text-2xl">
-//                         Welcome to Farm + Tauri + React
-//                     </h1>
-//                     <form
-//                         className="row"
-//                         onSubmit={(e) => {
-//                             e.preventDefault()
-//                             greet()
-//                         }}>
-//                         <input
-//                             id="greet-input"
-//                             onChange={(e) => setName(e.currentTarget.value)}
-//                             placeholder="Enter a name..."
-//                         />
-//                         <button type="submit">Greet</button>
-//                     </form>
-//                     <p>{greetMsg}</p>
-//                 </div>
